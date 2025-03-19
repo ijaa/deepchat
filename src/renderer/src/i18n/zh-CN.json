@@ -58,9 +58,11 @@
     "welcome": "欢迎",
     "settings": "设置",
     "settings-common": "通用设置",
-    "settings-database": "数据设置",
-    "settings-provider": "大模型设置",
-    "settings-about": "关于"
+    "settings-provider": "模型提供商",
+    "settings-about": "关于我们",
+    "settings-webapps": "网页应用",
+    "settings-database": "数据管理",
+    "webapp": "网址应用"
   },
   "chat": {
     "input": {
@@ -312,6 +314,22 @@
       "deleteModel": "删除模型",
       "localModels": "本地模型",
       "noLocalModels": "没有本地模型"
+    },
+    "webApps": {
+      "title": "网址应用",
+      "addWebApp": "添加网址",
+      "editWebApp": "编辑网址",
+      "webAppDialogDesc": "添加一个新的网址应用，将在侧边栏显示。",
+      "name": "名称",
+      "namePlaceholder": "请输入网址名称",
+      "url": "链接",
+      "urlPlaceholder": "请输入网址链接",
+      "invalidUrl": "请输入有效的网址",
+      "randomIcon": "随机图标",
+      "noWebApps": "暂无网址应用，点击右上角添加",
+      "deleteWebApp": "删除网址应用",
+      "deleteWebAppDesc": "确定要删除网址应用 \"{name}\" 吗？此操作无法撤销。",
+      "iconRequired": "请上传网址图标"
     }
   },
   "welcome": {
@@ -356,8 +374,8 @@
     "prompt": "今天你想问点什么？"
   },
   "about": {
-    "title": "DeepChat",
-    "description": "DeepChat是一个跨平台AI客户端，致力于让更多人便捷地使用AI。",
+    "title": "SlidingChat",
+    "description": "基于DeepChat的跨平台AI客户端，致力于让更多人便捷地使用AI。",
     "website": "访问我们的网站",
     "disclaimerButton": "免责声明",
     "disclaimerTitle": "使用条款声明",

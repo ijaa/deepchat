@@ -9,7 +9,7 @@
         isMacOS ? 'px-20' : 'px-4'
       ]"
     >
-      DeepChat
+      SlidingChat
     </div>
 
     <!-- Windows/Linux window controls (only shown on Windows/Linux) -->

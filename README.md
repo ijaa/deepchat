@@ -1,3 +1,8 @@
+## SlidingChat
+基于DeepChat的跨平台AI客户端，致力于让更多人便捷地使用AI，让更多人使用更多的AI平台，让更多人更个性化的使用AI。
+
+----------------
+
 <p align='center'>
 <img src='./build/icon.png' width="150" height="150" alt="logo" />
 </p>

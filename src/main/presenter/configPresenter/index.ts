@@ -15,6 +15,7 @@ import { app } from 'electron'
 import fs from 'fs'
 import { CONFIG_EVENTS } from '@/events'
 import { compare } from 'compare-versions'
+import { WebAppItem } from '@shared/presenter'
 
 // 定义应用设置的接口
 interface IAppSettings {
@@ -32,6 +33,7 @@ interface IAppSettings {
   syncFolderPath?: string // 同步文件夹路径
   lastSyncTime?: number // 上次同步时间
   customSearchEngines?: string // 自定义搜索引擎JSON字符串
+  webApps?: WebAppItem[] // 网址应用列表
   [key: string]: unknown // 允许任意键，使用unknown类型替代any
 }
 
@@ -562,5 +564,16 @@ export class ConfigPresenter implements IConfigPresenter {
 
     this.setSetting('contentProtectionEnabled', boolValue)
     eventBus.emit(CONFIG_EVENTS.CONTENT_PROTECTION_CHANGED, boolValue)
+  }
+
+  // 添加网址应用相关的方法
+  async getWebApps(): Promise<WebAppItem[]> {
+    return this.store.get('webApps', []) as WebAppItem[]
+  }
+
+  async setWebApps(webApps: WebAppItem[]): Promise<void> {
+    this.store.set('webApps', webApps)
+    // 发送事件通知渲染进程
+    eventBus.emit(CONFIG_EVENTS.WEB_APPS_UPDATED, webApps)
   }
 }

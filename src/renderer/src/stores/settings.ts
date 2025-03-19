@@ -579,6 +579,8 @@ export const useSettingsStore = defineStore('settings', () => {
 
   // 检查更新
   const checkUpdate = async () => {
+    console.log('强制不检查更新')
+    return
     if (isChecking.value) return
     isChecking.value = true
     try {

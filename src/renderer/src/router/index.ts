@@ -34,6 +34,15 @@ const router = createRouter({
       },
       children: [
         {
+          path: 'webapps',
+          name: 'settings-webapps',
+          component: () => import('@/components/settings/WebAppSettings.vue'),
+          meta: {
+            titleKey: 'routes.settings-webapps',
+            icon: 'lucide:globe'
+          }
+        },
+        {
           path: 'common',
           name: 'settings-common',
           component: () => import('@/components/settings/CommonSettings.vue'),
@@ -70,6 +79,15 @@ const router = createRouter({
           }
         }
       ]
+    },
+    {
+      path: '/webapp/:id',
+      name: 'webapp',
+      component: () => import('@/views/WebAppView.vue'),
+      meta: {
+        titleKey: 'routes.webapp',
+        icon: 'lucide:globe'
+      }
     }
   ]
 })

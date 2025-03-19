@@ -1,65 +1,69 @@
 <template>
-  <div class="h-full bg-muted dark:bg-background">
-    <div class="w-full h-full p-2">
-      <div class="w-full h-full flex flex-row bg-card rounded-lg border border-border">
-        <div class="w-52 h-full border-r border-border p-2 space-y-2 flex-shrink-0 overflow-y-auto">
-          <div
-            v-for="setting in settings"
-            :key="setting.name"
-            :class="[
-              'flex flex-row items-center hover:bg-accent gap-2 rounded-lg p-2 cursor-pointer',
-              route.name === setting.name ? 'bg-accent' : ''
-            ]"
-            @click="handleClick(setting.path)"
-          >
-            <Icon :icon="setting.icon" class="w-4 h-4 text-muted-foreground" />
-            <span class="text-sm font-medium">{{ t(setting.title) }}</span>
-          </div>
-        </div>
-        <RouterView />
-      </div>
+  <div class="flex h-full">
+    <!-- 设置侧边栏 -->
+    <div class="w-48 border-r p-4">
+      <nav class="space-y-2">
+        <router-link
+          v-for="item in settingsItems"
+          :key="item.name"
+          :to="{ name: item.name }"
+          class="flex items-center px-3 py-2 rounded-md text-sm"
+          :class="{
+            'bg-primary text-primary-foreground': $route.name === item.name,
+            'hover:bg-accent hover:text-accent-foreground': $route.name !== item.name
+          }"
+        >
+          <Icon v-if="item.icon" :icon="item.icon" class="mr-2 h-4 w-4" />
+          {{ t(item.titleKey) }}
+        </router-link>
+      </nav>
+    </div>
+    <!-- 设置内容 -->
+    <div class="flex-1 overflow-auto">
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Icon } from '@iconify/vue'
-import { useRouter } from 'vue-router'
-import { useRoute, RouterView } from 'vue-router'
-import { onMounted, Ref, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Icon } from '@iconify/vue'
 
 const { t } = useI18n()
-const router = useRouter()
-const route = useRoute()
-const settings: Ref<
+
+// 手动定义设置项，确保与路由配置一致
+const settingsItems = ref([
   {
-    title: string
-    name: string
-    icon: string
-    path: string
-  }[]
-> = ref([])
-
-const routes = router.getRoutes()
-onMounted(() => {
-  routes.forEach((route) => {
-    if (route.name === 'settings') {
-      route.children?.forEach((child) => {
-        settings.value.push({
-          title: child.meta?.titleKey as string,
-          icon: child.meta?.icon as string,
-          path: `/settings/${child.path}`,
-          name: child.name as string
-        })
-      })
-    }
-  })
-})
-
-const handleClick = (path: string) => {
-  router.push(path)
-}
+    name: 'settings-webapps',
+    icon: 'lucide:globe',
+    titleKey: 'routes.settings-webapps'
+  },
+  {
+    name: 'settings-common',
+    icon: 'lucide:bolt',
+    titleKey: 'routes.settings-common'
+  },
+  {
+    name: 'settings-provider',
+    icon: 'lucide:cloud-cog',
+    titleKey: 'routes.settings-provider'
+  },
+  {
+    name: 'settings-database',
+    icon: 'lucide:database',
+    titleKey: 'routes.settings-database'
+  },
+  {
+    name: 'settings-about',
+    icon: 'lucide:info',
+    titleKey: 'routes.settings-about'
+  }
+])
 </script>
 
 <style></style>

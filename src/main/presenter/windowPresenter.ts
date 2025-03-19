@@ -11,6 +11,7 @@ import { CONFIG_EVENTS, WINDOW_EVENTS } from '@/events'
 import contextMenu from '../contextMenuHelper'
 import { getContextMenuLabels } from '@shared/i18n'
 import { presenter } from '.'
+import { WebAppItem } from '@shared/presenter'
 
 export const MAIN_WIN = 'main'
 export class WindowPresenter implements IWindowPresenter {
@@ -281,5 +282,39 @@ export class WindowPresenter implements IWindowPresenter {
     } else {
       console.error('无法重置上下文菜单: 找不到主窗口')
     }
+  }
+
+  // 添加打开网址应用的方法
+  openWebApp(webApp: { id: string; name: string; url: string; icon: string }): BrowserWindow {
+    const existingWindow = this.windows.get(`webapp-${webApp.id}`)
+    if (existingWindow) {
+      if (existingWindow.isMinimized()) {
+        existingWindow.restore()
+      }
+      existingWindow.focus()
+      return existingWindow
+    }
+
+    // 创建新窗口
+    const webAppWindow = new BrowserWindow({
+      width: 1024,
+      height: 768,
+      title: webApp.name,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    })
+
+    // 加载URL
+    webAppWindow.loadURL(webApp.url)
+
+    // 窗口关闭时清理
+    webAppWindow.on('closed', () => {
+      this.windows.delete(`webapp-${webApp.id}`)
+    })
+
+    this.windows.set(`webapp-${webApp.id}`, webAppWindow)
+    return webAppWindow
   }
 }

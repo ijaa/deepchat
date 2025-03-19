@@ -1,10 +1,11 @@
-import { app, BrowserWindow, protocol } from 'electron'
+import { app, BrowserWindow, protocol, ipcMain, BrowserView } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { presenter } from './presenter'
 import { proxyConfig } from './presenter/proxyConfig'
 import { ProxyMode } from './presenter/proxyConfig'
 import path from 'path'
 import fs from 'fs'
+import { shell } from 'electron'
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
 app.commandLine.appendSwitch('webrtc-max-cpu-consumption-percentage', '100')
@@ -104,6 +105,147 @@ app.whenReady().then(() => {
       })
     }
   })
+
+  // 存储所有创建的BrowserView
+  const webViews = new Map<number, { view: BrowserView; webContentsId: number }>()
+  let nextViewId = 1
+
+  // 创建WebView
+  ipcMain.on('create-web-view', (event, { url, bounds }) => {
+    const view = new BrowserView({
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true,
+        sandbox: true,
+        webSecurity: true
+      }
+    })
+
+    const id = nextViewId++
+    const sender = event.sender
+    const win = BrowserWindow.fromWebContents(sender)
+
+    if (win) {
+      win.addBrowserView(view)
+      view.setBounds(bounds)
+      view.webContents.loadURL(url)
+
+      // 存储视图信息
+      webViews.set(id, {
+        view,
+        webContentsId: view.webContents.id
+      })
+
+      // 通知渲染进程视图已创建
+      event.reply('web-view-created', id)
+
+      // 监听加载状态
+      view.webContents.on('did-start-loading', () => {
+        sender.send('web-view-loading', id, true)
+      })
+
+      view.webContents.on('did-stop-loading', () => {
+        sender.send('web-view-loading', id, false)
+
+        // 发送导航状态
+        sender.send('web-view-navigation-state', id, {
+          canGoBack: view.webContents.canGoBack(),
+          canGoForward: view.webContents.canGoForward()
+        })
+      })
+
+      // 监听URL变化
+      view.webContents.on('did-navigate', (_event, url) => {
+        sender.send('web-view-url-changed', id, url)
+      })
+
+      view.webContents.on('did-navigate-in-page', (_event, url) => {
+        sender.send('web-view-url-changed', id, url)
+      })
+    }
+  })
+
+  // 调整WebView大小
+  ipcMain.on('resize-web-view', (_event, id, bounds) => {
+    const viewData = webViews.get(id)
+    if (viewData) {
+      viewData.view.setBounds(bounds)
+    }
+  })
+
+  // 销毁WebView
+  ipcMain.on('destroy-web-view', (event, id) => {
+    const viewData = webViews.get(id)
+    if (viewData) {
+      const win = BrowserWindow.fromWebContents(event.sender)
+      if (win) {
+        win.removeBrowserView(viewData.view)
+        webViews.delete(id)
+      }
+    }
+  })
+
+  // 导航到URL
+  ipcMain.on('navigate-web-view', (_event, id, url) => {
+    const viewData = webViews.get(id)
+    if (viewData) {
+      viewData.view.webContents.loadURL(url)
+    }
+  })
+
+  // 获取导航状态
+  ipcMain.on('get-web-view-navigation-state', (event, id) => {
+    const viewData = webViews.get(id)
+    if (viewData) {
+      event.reply('web-view-navigation-state', id, {
+        canGoBack: viewData.view.webContents.canGoBack(),
+        canGoForward: viewData.view.webContents.canGoForward()
+      })
+    }
+  })
+
+  // 导航控制
+  ipcMain.on('web-view-go-back', (_event, id) => {
+    const viewData = webViews.get(id)
+    if (viewData && viewData.view.webContents.canGoBack()) {
+      viewData.view.webContents.goBack()
+    }
+  })
+
+  ipcMain.on('web-view-go-forward', (_event, id) => {
+    const viewData = webViews.get(id)
+    if (viewData && viewData.view.webContents.canGoForward()) {
+      viewData.view.webContents.goForward()
+    }
+  })
+
+  ipcMain.on('web-view-reload', (_event, id) => {
+    const viewData = webViews.get(id)
+    if (viewData) {
+      viewData.view.webContents.reload()
+    }
+  })
+
+  // 注册自定义协议
+  protocol.registerFileProtocol('app', (request, callback) => {
+    const url = request.url.substring(6) // 去掉 'app://'
+    const decodedUrl = decodeURI(url)
+    try {
+      // 如果是 'local/' 开头，则指向用户数据目录中的文件
+      if (decodedUrl.startsWith('local/')) {
+        const filePath = path.join(
+          app.getPath('userData'),
+          'webAppIcons',
+          decodedUrl.substring(6) // 去掉 'local/'
+        )
+        callback({ path: filePath })
+      } else {
+        callback({ path: decodedUrl })
+      }
+    } catch (error) {
+      console.error('Protocol error:', error)
+    }
+  })
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -118,4 +260,14 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   presenter.destroy()
+})
+
+// 添加IPC处理器
+ipcMain.on('open-web-app', (_event, webApp) => {
+  presenter.windowPresenter.openWebApp(webApp)
+})
+
+// 添加在外部浏览器打开URL的IPC处理器
+ipcMain.on('open-external-url', (_event, url) => {
+  shell.openExternal(url)
 })
