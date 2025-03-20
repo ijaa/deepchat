@@ -329,7 +329,17 @@
       "noWebApps": "暂无网址应用，点击右上角添加",
       "deleteWebApp": "删除网址应用",
       "deleteWebAppDesc": "确定要删除网址应用 \"{name}\" 吗？此操作无法撤销。",
-      "iconRequired": "请上传网址图标"
+      "iconRequired": "请上传网址图标",
+      "presetWebApps": "快捷添加",
+      "presetWebAppsDesc": "点击图标快速添加常用网址应用",
+      "appAlreadyExists": "已存在相同URL的应用，是否要替换？",
+      "addSuccess": "已成功添加 {name}",
+      "categories": {
+        "ai": "AI助手",
+        "entertainment": "娱乐",
+        "tools": "工具"
+      },
+      "alreadyAdded": "已添加"
     }
   },
   "welcome": {
@@ -376,7 +386,7 @@
   "about": {
     "title": "SlidingChat",
     "description": "基于DeepChat的跨平台AI客户端，致力于让更多人便捷地使用AI。",
-    "website": "访问我们的网站",
+    "website": "访问DeepChat官网",
     "disclaimerButton": "免责声明",
     "disclaimerTitle": "使用条款声明",
     "checkUpdateButton": "检查更新",

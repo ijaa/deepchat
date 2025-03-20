@@ -2,10 +2,16 @@
   <div class="w-full h-full flex flex-col gap-4 p-4">
     <div class="flex justify-between items-center">
       <h2 class="text-xl font-semibold">{{ t('settings.webApps.title') }}</h2>
-      <Button @click="openAddWebAppDialog">
-        <Icon icon="lucide:plus" class="mr-2 h-4 w-4" />
-        {{ t('settings.webApps.addWebApp') }}
-      </Button>
+      <div class="flex gap-2">
+        <Button @click="openPresetWebAppsDialog">
+          <Icon icon="lucide:list" class="mr-2 h-4 w-4" />
+          {{ t('settings.webApps.presetWebApps') }}
+        </Button>
+        <Button @click="openAddWebAppDialog">
+          <Icon icon="lucide:plus" class="mr-2 h-4 w-4" />
+          {{ t('settings.webApps.addWebApp') }}
+        </Button>
+      </div>
     </div>
 
     <div class="flex-1 overflow-auto">
@@ -147,6 +153,55 @@
       </DialogFooter>
     </DialogContent>
   </Dialog>
+
+  <!-- 预设网址应用对话框 -->
+  <Dialog v-model:open="isPresetDialogOpen">
+    <DialogContent class="sm:max-w-[700px]">
+      <DialogHeader>
+        <DialogTitle>{{ t('settings.webApps.presetWebApps') }}</DialogTitle>
+        <DialogDescription>
+          {{ t('settings.webApps.presetWebAppsDesc') }}
+        </DialogDescription>
+      </DialogHeader>
+      <div class="max-h-[60vh] overflow-y-auto">
+        <div v-for="(category, index) in presetWebApps" :key="index" class="mb-6">
+          <h3 class="text-lg font-medium mb-3">
+            {{ t(`settings.webApps.categories.${category.key}`) }}
+          </h3>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div
+              v-for="app in category.apps"
+              :key="app.id"
+              class="flex flex-col items-center p-3 rounded-lg border transition-colors"
+              :class="{
+                'hover:bg-accent cursor-pointer': !isAppAlreadyAdded(app),
+                'opacity-60 bg-muted cursor-not-allowed': isAppAlreadyAdded(app)
+              }"
+              @click="!isAppAlreadyAdded(app) && addPresetWebApp(app)"
+            >
+              <div class="h-12 w-12 flex items-center justify-center mb-2">
+                <img
+                  :src="app.icon"
+                  :alt="app.name"
+                  class="h-10 w-10 rounded-md object-contain"
+                  @error="handleIconError($event, app)"
+                />
+              </div>
+              <span class="text-sm text-center">{{ app.name }}</span>
+              <span v-if="isAppAlreadyAdded(app)" class="text-xs text-muted-foreground mt-1">
+                {{ t('settings.webApps.alreadyAdded') }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button variant="outline" @click="isPresetDialogOpen = false">
+          {{ t('dialog.close') }}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -193,6 +248,133 @@ const iconUrl = ref('')
 // 删除弹窗状态
 const isDeleteDialogOpen = ref(false)
 const webAppToDelete = ref<WebAppItem | null>(null)
+
+// 预设网址应用对话框状态
+const isPresetDialogOpen = ref(false)
+
+// 预设网址应用类别和数据
+const presetWebApps = ref([
+  {
+    key: 'ai',
+    apps: [
+      {
+        id: 'tongyi',
+        name: '通义千问',
+        url: 'https://qianwen.aliyun.com',
+        icon: 'https://img.alicdn.com/imgextra/i4/O1CN01EfJVFQ1uZPd7W4W6i_!!6000000006051-2-tps-112-112.png',
+        enabled: true
+      },
+      {
+        id: 'wenxin',
+        name: '文心一言',
+        url: 'https://yiyan.baidu.com',
+        icon: 'https://nlp-eb.cdn.bcebos.com/logo/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'kimi',
+        name: 'Kimi AI',
+        url: 'https://kimi.moonshot.cn',
+        icon: 'https://statics.moonshot.cn/kimi-chat/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'doubao',
+        name: '豆包',
+        url: 'https://www.doubao.com',
+        icon: 'https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/doubao/web/logo-icon.png',
+        enabled: true
+      },
+      {
+        id: 'yuanbao',
+        name: '腾讯元宝',
+        url: 'https://hunyuan.tencent.com',
+        icon: 'https://cdn-bot.hunyuan.tencent.com/logo.png',
+        enabled: true
+      },
+      {
+        id: 'chatgpt',
+        name: 'ChatGPT',
+        url: 'https://chat.openai.com',
+        icon: 'https://chat.openai.com/favicon.ico',
+        enabled: true
+      }
+    ]
+  },
+  {
+    key: 'entertainment',
+    apps: [
+      {
+        id: 'douyin',
+        name: '抖音',
+        url: 'https://www.douyin.com',
+        icon: 'https://www.douyin.com/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'bilibili',
+        name: 'B站',
+        url: 'https://www.bilibili.com',
+        icon: 'https://www.bilibili.com/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'netease_music',
+        name: '网易云音乐',
+        url: 'https://music.163.com',
+        icon: 'https://s1.music.126.net/style/favicon.ico?v20180823',
+        enabled: true
+      },
+      {
+        id: 'qq_music',
+        name: 'QQ音乐',
+        url: 'https://y.qq.com',
+        icon: 'https://y.qq.com/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'tencent_video',
+        name: '腾讯视频',
+        url: 'https://v.qq.com',
+        icon: 'https://v.qq.com/favicon.ico',
+        enabled: true
+      }
+    ]
+  },
+  {
+    key: 'tools',
+    apps: [
+      {
+        id: 'google_translate',
+        name: '谷歌翻译',
+        url: 'https://translate.google.com',
+        icon: 'https://translate.google.com/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'evernote',
+        name: '印象笔记',
+        url: 'https://www.yinxiang.com',
+        icon: 'https://www.yinxiang.com/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'notion',
+        name: 'Notion',
+        url: 'https://www.notion.so',
+        icon: 'https://www.notion.so/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'feishu',
+        name: '飞书',
+        url: 'https://www.feishu.cn',
+        icon: 'https://www.feishu.cn/favicon.ico',
+        enabled: true
+      }
+    ]
+  }
+])
 
 // 表单验证
 const isValidForm = computed(() => {
@@ -539,6 +721,57 @@ const compressImage = (
 
     img.src = dataUrl
   })
+}
+
+// 打开预设网址应用对话框
+const openPresetWebAppsDialog = () => {
+  isPresetDialogOpen.value = true
+}
+
+// 检查应用是否已经添加到列表中
+const isAppAlreadyAdded = (app: WebAppItem): boolean => {
+  return webApps.value.some(
+    (existingApp) => existingApp.url === app.url || existingApp.name === app.name
+  )
+}
+
+// 添加预设网址应用
+const addPresetWebApp = async (app: WebAppItem) => {
+  try {
+    // 如果已添加则不执行任何操作
+    if (isAppAlreadyAdded(app)) {
+      return
+    }
+
+    // 创建一个新的应用对象
+    const newApp = {
+      id: nanoid(),
+      name: String(app.name),
+      url: String(app.url),
+      icon: String(app.icon),
+      enabled: true
+    }
+
+    // 添加到应用列表
+    const updatedApps = [...webApps.value, newApp].map((app) => ({
+      id: String(app.id),
+      name: String(app.name),
+      url: String(app.url),
+      icon: String(app.icon),
+      enabled: Boolean(app.enabled)
+    }))
+
+    // 保存到配置中
+    const cleanApps = JSON.parse(JSON.stringify(updatedApps))
+    await configPresenter.setWebApps(cleanApps)
+    webApps.value = cleanApps
+
+    // 显示成功提示
+    alert(t('settings.webApps.addSuccess', { name: app.name }))
+  } catch (error) {
+    console.error('添加预设网址应用失败:', error)
+    alert(`添加失败: ${error instanceof Error ? error.message : '未知错误'}`)
+  }
 }
 
 onMounted(() => {
