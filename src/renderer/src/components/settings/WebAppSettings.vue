@@ -338,11 +338,18 @@ const presetWebApps = ref([
         url: 'https://v.qq.com',
         icon: 'https://v.qq.com/favicon.ico',
         enabled: true
+      },
+      {
+        id: 'queyue',
+        name: '雀跃',
+        url: 'https://www.indie.cn/',
+        icon: 'https://www.indie.cn/favicon.ico',
+        enabled: true
       }
     ]
   },
   {
-    key: 'tools',
+    key: 'officeTools',
     apps: [
       {
         id: 'google_translate',
@@ -362,7 +369,7 @@ const presetWebApps = ref([
         id: 'notion',
         name: 'Notion',
         url: 'https://www.notion.so',
-        icon: 'https://www.notion.so/favicon.ico',
+        icon: 'https://www.notion.com/front-static/favicon.ico',
         enabled: true
       },
       {
@@ -370,6 +377,51 @@ const presetWebApps = ref([
         name: '飞书',
         url: 'https://www.feishu.cn',
         icon: 'https://www.feishu.cn/favicon.ico',
+        enabled: true
+      }
+    ]
+  },
+  {
+    key: 'devTools',
+    apps: [
+      {
+        id: 'github_trending',
+        name: 'GitHub Trending',
+        url: 'https://github.com/trending',
+        icon: 'https://github.com/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'excalidraw',
+        name: 'Excalidraw',
+        url: 'https://excalidraw.com/',
+        icon: 'https://excalidraw.com/favicon-32x32.png',
+        enabled: true
+      },
+      {
+        id: 'cliim',
+        name: '草料二维码',
+        url: 'https://cli.im/',
+        icon: 'https://cli.im/favicon.ico',
+        enabled: true
+      },
+      {
+        id: 'json_formatter',
+        name: 'JSON格式化',
+        url: 'https://www.json.cn/',
+        icon: 'https://www.json.cn/favicon.ico',
+        enabled: true
+      }
+    ]
+  },
+  {
+    key: 'other',
+    apps: [
+      {
+        id: 'svgviewer',
+        name: 'SVG Viewer',
+        url: 'https://www.svgviewer.dev/',
+        icon: 'https://www.svgviewer.dev/images/logo.svg',
         enabled: true
       }
     ]

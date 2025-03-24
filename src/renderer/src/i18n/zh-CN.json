@@ -337,7 +337,9 @@
       "categories": {
         "ai": "AI助手",
         "entertainment": "娱乐",
-        "tools": "工具"
+        "officeTools": "办公工具",
+        "devTools": "开发者工具",
+        "other": "其他"
       },
       "alreadyAdded": "已添加"
     }
